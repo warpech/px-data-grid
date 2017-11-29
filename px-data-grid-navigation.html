@@ -3,7 +3,7 @@
 <link rel="import" href="../px-dropdown/px-dropdown.html">
 <link rel="import" href="../app-localize-behavior/app-localize-behavior.html"/>
 
-<dom-module id="px-page-navigation">
+<dom-module id="px-data-grid-navigation">
   <template>
     <style>
       :host {
@@ -27,9 +27,9 @@
        * @memberof Predix
        * @extends Polymer.Element
        */
-      class PageNavigationElement extends Polymer.Element {
+      class DataGridNavigationElement extends Polymer.Element {
         static get is() {
-          return 'px-page-navigation';
+          return 'px-data-grid-navigation';
         }
 
         static get properties() {
@@ -117,13 +117,13 @@
 
       }
 
-      customElements.define(PageNavigationElement.is, PageNavigationElement);
+      customElements.define(DataGridNavigationElement.is, DataGridNavigationElement);
 
       /**
        * @namespace Predix
        */
       window.Predix = window.Predix || {};
-      Predix.PageNavigationElement = PageNavigationElement;
+      Predix.DataGridNavigationElement = DataGridNavigationElement;
     }
   </script>
 </dom-module>

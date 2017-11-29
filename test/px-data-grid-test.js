@@ -202,7 +202,7 @@ function runTests() {
       });
 
       it('should display correct values in page navigation component', () => {
-        const pageNav = grid.querySelector('px-page-navigation');
+        const pageNav = grid.querySelector('px-data-grid-navigation');
       });
     });
 
