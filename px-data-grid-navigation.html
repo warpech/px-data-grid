@@ -82,18 +82,15 @@
         _pageSizeChange(event) {
           // px dropdown files event when initial values are set, but the value
           // attribute in it's event is null
-          if (event.detail.value === undefined
-              || event.detail.value === null) {
-            return;
+          if (event.detail.value !== undefined
+              && event.detail.value !== null) {
+            this.pageSize = this.selectablePageSizes[event.detail.value];
           }
 
-          this.pageSize = this.selectablePageSizes[event.detail.value];
-          this.dispatchEvent(new CustomEvent('page-size-change', {
+          this.dispatchEvent(new CustomEvent('navigation-change', {
             detail: {
-              selectablePageSizes: this.selectablePageSizes,
               pageSize: this.pageSize,
-              currentPage: this.currentPage,
-              numberOfPages: this.numberOfPages
+              currentPage: this.currentPage
             },
             bubbles: true
           }));
