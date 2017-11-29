@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer-element.html"/>
 <link rel="import" href="px-data-grid-theme.html">
+<link rel="import" href="../px-dropdown/px-dropdown.html">
 <link rel="import" href="../app-localize-behavior/app-localize-behavior.html"/>
 
 <dom-module id="px-page-navigation">
@@ -11,9 +12,11 @@
       }
     </style>
 
-    <div>
-      Check out my pages
-    </div>
+    <px-dropdown
+      display-value="[[_numToStr(pageSize)]]"
+      items="[[_numArrayToStrArray(selectablePageSizes)]]"
+      on-selected-changed="_pageSizeChange">
+    </px-dropdown>
 
   </template>
   <script>
@@ -32,11 +35,84 @@
         static get properties() {
           return {
 
+            /**
+             * Values selectable by user that dicatate how many items to show per page.
+             */
+            selectablePageSizes: {
+              type: Array,
+              value: [
+                10,
+                20,
+                30
+              ]
+            },
+
+            /**
+             * Current number of items/rows per page.
+             */
+            pageSize: {
+              type: Number,
+              value: 10
+            },
+
+            /**
+             * Currently displayed page number.
+             */
+            currentPage: {
+              type: Number,
+              value: 0
+            },
+
+            /**
+             * Total number of pages.
+             */
+            numberOfPages: {
+              type: Number,
+              value: 0
+            }
+
           };
         }
 
         ready() {
           super.ready();
+          window.drew = this;
+        }
+
+        _pageSizeChange(event) {
+          // px dropdown files event when initial values are set, but the value
+          // attribute in it's event is null
+          if (event.detail.value === undefined
+              || event.detail.value === null) {
+            return;
+          }
+
+          this.pageSize = this.selectablePageSizes[event.detail.value];
+          this.dispatchEvent(new CustomEvent('page-size-change', {
+            detail: {
+              selectablePageSizes: this.selectablePageSizes,
+              pageSize: this.pageSize,
+              currentPage: this.currentPage,
+              numberOfPages: this.numberOfPages
+            },
+            bubbles: true
+          }));
+        }
+
+        /**
+         * Converts array of Numbers to array of Strings.
+         */
+        _numArrayToStrArray(numArray) {
+          const strArray = [];
+          numArray.forEach(val => strArray.push(val.toString()));
+          return strArray;
+        }
+
+        /**
+         * Converts a Number to a String.
+         */
+        _numToStr(num) {
+          return num.toString();
         }
 
       }
