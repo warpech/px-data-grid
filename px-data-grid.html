@@ -114,7 +114,9 @@
     <!-- pagination component -->
     <template is="dom-if" if="[[pagination]]">
       <div class="action-bar">
-        <px-data-grid-navigation></px-data-grid-navigation>
+        <px-data-grid-navigation
+          on-navigation-change="_onNavigationChange">
+        </px-data-grid-navigation>
       </div>
     </template>
 
@@ -674,6 +676,14 @@
             this._vaadinGrid.clearCache();
           }
         }
+
+        /**
+         * Listener for px-data-grid-navigation component
+         */
+        _onNavigationChange(event) {
+
+        }
+
       }
       customElements.define(DataGridElement.is, DataGridElement);
 
