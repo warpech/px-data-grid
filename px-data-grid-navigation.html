@@ -275,7 +275,12 @@
               pageList[1] = '...';
             } else {
               // set ellipsis on both left and right
-
+              const firstPage = this.currentPage - 4;
+              for (let i = 0; i < this._pageListMaxCount; i++) {
+                pageList.push(firstPage + i);
+              }
+              pageList[1] = '...';
+              pageList[pageList.length - 2] = '...';
             }
 
             // always show max and min pages
