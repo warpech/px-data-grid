@@ -147,6 +147,14 @@
             totalItemCount: {
               type: Number,
               value: 0
+            },
+
+            /**
+             * Max number of page number items to show in the page list.
+             */
+            _pageListMaxCount: {
+              type: Number,
+              value: 9
             }
 
           };
@@ -241,10 +249,34 @@
          * Gets an array of page numbers based on the numberOfPages property.
          */
         _getPagesList() {
-          const pageList = [0];
-          for (let i = 1; i < this.numberOfPages; i++) {
-            pageList.push(i);
+
+          // always show page 1
+          const pageList = [1];
+
+          if (this.numberOfPages <= this._pageListMaxCount) {
+            console.log("showing all page numbers");
+            // show all page numbers
+            for (let i = 2; i < this.numberOfPages + 1; i++) {
+              pageList.push(i);
+            }
+          } else {
+            console.log("showing select page numbers");
+            // figure out what the min and max displayed page numbers are (besides page 1 and last page)
+            if (this.currentPage < 5) {
+              for (let i = 2; i < this.numberOfPages; i++) {
+                pageList.push(i);
+              }
+            }
+
+            if (this.currentPage > 5) {
+              // show elipse on left
+            }
+            if (this.numberOfPages - this.currentPage > 5) {
+              // show elipse on right
+            }
           }
+
+
           return pageList;
         }
 
