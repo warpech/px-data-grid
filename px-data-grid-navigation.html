@@ -23,11 +23,14 @@
       }
 
       .page-size-select px-dropdown {
+        --px-btn-min-width: 30px;
         display: inline-block;
+        margin-left: 2px;
       }
 
       .row-counts {
         display: inline-block;
+        margin-right: 20px;
       }
 
       .row-counts .current-rows {
@@ -51,16 +54,22 @@
       .page-selection .page-list .page-button {
         display: inline-block;
         cursor: pointer;
+        padding: 5px 7px;
+      }
+
+      .page-selection .page-list .page-button.selected {
+        border: solid 1px #CCC;
       }
     </style>
 
     <!-- page size select -->
     <div class="page-size-select">
-      Rows per page:
+      Rows per page
       <px-dropdown
         display-value="[[_numToStr(pageSize)]]"
         items="[[_numArrayToStrArray(selectablePageSizes)]]"
-        on-selected-changed="_pageSizeChange">
+        on-selected-changed="_pageSizeChange"
+        button-style="bare--primary">
       </px-dropdown>
     </div>
 
@@ -77,9 +86,17 @@
         </div>
         <div class="page-list">
           <template is="dom-repeat" items="{{_getPagesList()}}">
-            <div class="page-button" on-tap="_onPageTap">
-              [[item]]
-            </div>
+            <template is="dom-if" if="{{_isCurrentPage(item)}}">
+              <div class="page-button selected" on-tap="_onPageTap">
+                [[item]]
+              </div>
+            </template>
+            <template is="dom-if" if="{{!_isCurrentPage(item)}}">
+              <div class="page-button" on-tap="_onPageTap">
+                [[item]]
+              </div>
+            </template>
+
           </template>
         </div>
         <div class="next-arrow" on-tap="_onNextTap">
@@ -291,6 +308,13 @@
           }
 
           return pageList;
+        }
+
+        /**
+         * Returns true if param pageNumber is equal to this.currentPage.
+         */
+        _isCurrentPage(pageNumber) {
+          return this.currentPage === pageNumber;
         }
 
       }
