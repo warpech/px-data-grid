@@ -39,7 +39,7 @@
       }
 
       .page-selection .back-arrow,
-      .page-selection .forward-arrow {
+      .page-selection .next-arrow {
         display: inline-block;
         cursor: pointer;
       }
@@ -72,17 +72,17 @@
 
       <!-- page selection list -->
       <div class="page-selection">
-        <div class="back-arrow">
+        <div class="back-arrow" on-tap="_onBackTap">
           <px-icon icon="px-nav:back"></px-icon>
         </div>
         <div class="page-list">
           <template is="dom-repeat" items="{{_getPagesList}}">
-            <div class="page-button">
+            <div class="page-button" on-tap="_onPageTap">
               [[item]]
             </div>
           </template>
         </div>
-        <div class="forward-arrow">
+        <div class="next-arrow" on-tap="_onNextTap">
           <px-icon icon="px-nav:next"></px-icon>
         </div>
       </div>
@@ -161,18 +161,51 @@
          * Fired when user selects a new page size.
          */
         _pageSizeChange(event) {
+          let pageSize = this.pageSize;
           // px dropdown files event when initial values are set, but the value
           // attribute in it's event is null
           if (event.detail.value !== undefined
               && event.detail.value !== null) {
-            this.pageSize = this.selectablePageSizes[event.detail.value];
+            pageSize = this.selectablePageSizes[event.detail.value];
           }
+          this._fireChangeEvent({
+            pageSize: pageSize,
+            currentPage: this.currentPage
+          });
+        }
 
+        /**
+         * Fired when user clicks on a page number.
+         */
+        _onPageTap(event) {
+          const pageNumber = Number.parseInt(event.path[0].innerText);
+          this._fireChangeEvent({
+            pageSize: this.pageSize,
+            currentPage: pageNumber
+          });
+        }
+
+        _onBackTap(event) {
+          this._fireChangeEvent({
+            pageSize: this.pageSize,
+            currentPage: this.currentPage - 1
+          });
+        }
+
+        _onNextTap(event) {
+          this._fireChangeEvent({
+            pageSize: this.pageSize,
+            currentPage: this.currentPage + 1
+          });
+        }
+
+        /**
+         * Fires the general change event which includes all data
+         * that can be set by the user.
+         */
+        _fireChangeEvent(detail) {
           this.dispatchEvent(new CustomEvent('navigation-change', {
-            detail: {
-              pageSize: this.pageSize,
-              currentPage: this.currentPage
-            },
+            detail: detail,
             bubbles: true
           }));
         }
