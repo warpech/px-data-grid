@@ -76,7 +76,7 @@
           <px-icon icon="px-nav:back"></px-icon>
         </div>
         <div class="page-list">
-          <template is="dom-repeat" items="{{_getPagesList}}">
+          <template is="dom-repeat" items="{{_getPagesList()}}">
             <div class="page-button" on-tap="_onPageTap">
               [[item]]
             </div>
@@ -240,7 +240,7 @@
         /**
          * Gets an array of page numbers based on the numberOfPages property.
          */
-        get _getPagesList() {
+        _getPagesList() {
           const pageList = [0];
           for (let i = 1; i < this.numberOfPages; i++) {
             pageList.push(i);
