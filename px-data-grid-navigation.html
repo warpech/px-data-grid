@@ -10,13 +10,38 @@
         position: relative;
         display: block;
       }
+
+      .page-size-select {
+        display: inline-block;
+      }
+
+      .page-size-select px-dropdown {
+        display: inline-block;
+      }
+
+      .row-counts {
+        display: inline-block;
+      }
+
+      .row-counts .current-rows {
+        font-weight: bold;
+      }
     </style>
 
-    <px-dropdown
-      display-value="[[_numToStr(pageSize)]]"
-      items="[[_numArrayToStrArray(selectablePageSizes)]]"
-      on-selected-changed="_pageSizeChange">
-    </px-dropdown>
+    <!-- page size select -->
+    <div class="page-size-select">
+      Rows per page:
+      <px-dropdown
+        display-value="[[_numToStr(pageSize)]]"
+        items="[[_numArrayToStrArray(selectablePageSizes)]]"
+        on-selected-changed="_pageSizeChange">
+      </px-dropdown>
+    </div>
+
+    <!-- row counts -->
+    <div class="row-counts">
+      <span class="current-rows">[[_getItemsRangeStr()]]</span> of [[totalItemCount]]
+    </div>
 
   </template>
   <script>
@@ -69,6 +94,11 @@
             numberOfPages: {
               type: Number,
               value: 0
+            },
+
+            totalItemCount: {
+              type: Number,
+              value: 0
             }
 
           };
@@ -110,6 +140,14 @@
          */
         _numToStr(num) {
           return num.toString();
+        }
+
+        _getItemsRangeStr() {
+          const min = this.currentPage * this.pageSize;
+          let max = (this.currentPage + 1) * this.pageSize;
+          // dont let max be greater than total item count
+          max = (this.totalItemCount > 0 && max > this.totalItemCount) ? this.totalItemCount : max;
+          return min + ' - ' + max;
         }
 
       }
