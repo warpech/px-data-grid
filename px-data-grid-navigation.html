@@ -250,32 +250,38 @@
          */
         _getPagesList() {
 
-          // always show page 1
-          const pageList = [1];
+          const pageList = [];
 
           if (this.numberOfPages <= this._pageListMaxCount) {
-            console.log("showing all page numbers");
             // show all page numbers
-            for (let i = 2; i < this.numberOfPages + 1; i++) {
+            for (let i = 1; i < this.numberOfPages + 1; i++) {
               pageList.push(i);
             }
           } else {
-            console.log("showing select page numbers");
             // figure out what the min and max displayed page numbers are (besides page 1 and last page)
             if (this.currentPage < 5) {
-              for (let i = 2; i < this.numberOfPages; i++) {
-                pageList.push(i);
+              // only set ellipsis on left
+              const firstPage = 1;
+              for (let i = 0; i < this._pageListMaxCount; i++) {
+                pageList.push(firstPage + i);
               }
+              pageList[pageList.length - 2] = '...';
+            } else if (this.numberOfPages - this.currentPage < 5) {
+              // only set ellipsis on right
+              const firstPage = this.numberOfPages - this._pageListMaxCount + 1;
+              for (let i = 0; i < this._pageListMaxCount; i++) {
+                pageList.push(firstPage + i);
+              }
+              pageList[1] = '...';
+            } else {
+              // set ellipsis on both left and right
+
             }
 
-            if (this.currentPage > 5) {
-              // show elipse on left
-            }
-            if (this.numberOfPages - this.currentPage > 5) {
-              // show elipse on right
-            }
+            // always show max and min pages
+            pageList[0] = 1;
+            pageList[pageList.length - 1] = this.numberOfPages;
           }
-
 
           return pageList;
         }
