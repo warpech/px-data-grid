@@ -10,7 +10,7 @@
       :host {
         position: relative;
         display: block;
-        color: var(--px-data-grid-navigation-text-color, red);
+        color: var(--px-data-grid-navigation-text-color, #000);
         padding-top: var(--px-data-grid-navigation-padding-top, 2px);
         padding-bottom: var(--px-data-grid-navigation-padding-bottom, 2px);
       }
@@ -105,13 +105,13 @@
         </template>
         <!-- page number list -->
         <div class="page-list">
-          <template is="dom-repeat" items="{{_getPagesList()}}">
-            <template is="dom-if" if="{{_isCurrentPage(item)}}">
+          <template is="dom-repeat" items="[[_getPagesList()]]">
+            <template is="dom-if" if="[[_isCurrentPage(item)]]">
               <div class="page-button selected" on-tap="_onPageTap">
                 [[item]]
               </div>
             </template>
-            <template is="dom-if" if="{{!_isCurrentPage(item)}}">
+            <template is="dom-if" if="[[!_isCurrentPage(item)]]">
               <div class="page-button" on-tap="_onPageTap">
                 [[item]]
               </div>
