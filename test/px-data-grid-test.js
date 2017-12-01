@@ -190,21 +190,5 @@ function runTests() {
       });
     });
 
-    describe('page navigation ui tests', () => {
-      beforeEach((done) => {
-        grid = fixture('simple-grid');
-        grid.tableData = data;
-        Polymer.RenderStatus.afterNextRender(grid, () => {
-          setTimeout(() => { // IE11
-            done();
-          });
-        });
-      });
-
-      it('should display correct values in page navigation component', () => {
-        const pageNav = grid.querySelector('px-data-grid-navigation');
-      });
-    });
-
   });
 }
