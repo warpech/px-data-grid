@@ -41,7 +41,11 @@ function runTests() {
     });
 
     it('should display proper user selectable page sizes', (done) => {
-      // check init page size
+      // check init page sizes
+      expect(navigation.selectablePageSizes).to.be.eql(getAvailablePageSizes());
+      // update page sizes and check
+      const newPageSizes = [100, 200, 300];
+      navigation.selectablePageSizes = newPageSizes;
       expect(navigation.selectablePageSizes).to.be.eql(getAvailablePageSizes());
       done();
     });
