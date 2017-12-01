@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <link rel="import" href="../px-data-grid-navigation.html">
+  </head>
+
+  <body>
+
+    <test-fixture id="simple-navigation">
+      <template>
+        <px-data-grid-navigation
+          selectable-page-sizes="[10, 20, 30]"
+          page-size="10"
+          total-item-count="300"
+          current-page="1"
+          number-of-pages="50">
+        </px-data-grid-navigation>
+      </template>
+    </test-fixture>
+
+    <script src="px-data-grid-navigation-test.js"></script>
+
+  </body>
+</html>
