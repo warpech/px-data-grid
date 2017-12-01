@@ -10,16 +10,21 @@
       :host {
         position: relative;
         display: block;
+        color: var(--px-data-grid-navigation-text-color, red);
+        padding-top: var(--px-data-grid-navigation-padding-top, 2px);
+        padding-bottom: var(--px-data-grid-navigation-padding-bottom, 2px);
       }
 
       .right {
         display: inline-block;
         position: absolute;
         right: 0;
+        padding-right: var(--px-data-grid-padding-right, 12px);
       }
 
       .page-size-select {
         display: inline-block;
+        padding-left: var(--px-data-grid-padding-left, 12px);
       }
 
       .page-size-select px-dropdown {
@@ -31,6 +36,7 @@
       .row-counts {
         display: inline-block;
         margin-right: 20px;
+        color: var(--px-data-grid-navigation-text-color--dark, #000);
       }
 
       .row-counts .current-rows {
@@ -41,10 +47,14 @@
         display: inline-block;
       }
 
-      .page-selection .back-arrow,
-      .page-selection .next-arrow {
+      .page-selection .arrow {
         display: inline-block;
         cursor: pointer;
+      }
+
+      .page-selection .arrow.disabled {
+        color: var(--px-data-grid-navigation-text-color--disabled, #CCC);
+        cursor: default;
       }
 
       .page-selection .page-list {
@@ -58,7 +68,8 @@
       }
 
       .page-selection .page-list .page-button.selected {
-        border: solid 1px #CCC;
+        border: solid 1px var(--px-data-grid-navigation-page-number-border-color, #CCC);
+        color: var(--px-data-grid-navigation-text-color--selected, #000);
       }
     </style>
 
@@ -81,9 +92,18 @@
 
       <!-- page selection list -->
       <div class="page-selection">
-        <div class="back-arrow" on-tap="_onBackTap">
-          <px-icon icon="px-nav:back"></px-icon>
-        </div>
+        <!-- back arrow -->
+        <template is="dom-if" if="[[_isCurrentPage(1)]]">
+          <div class="arrow disabled">
+            <px-icon icon="px-nav:back"></px-icon>
+          </div>
+        </template>
+        <template is="dom-if" if="[[!_isCurrentPage(1)]]">
+          <div class="arrow" on-tap="_onBackTap">
+            <px-icon icon="px-nav:back"></px-icon>
+          </div>
+        </template>
+        <!-- page number list -->
         <div class="page-list">
           <template is="dom-repeat" items="{{_getPagesList()}}">
             <template is="dom-if" if="{{_isCurrentPage(item)}}">
@@ -96,12 +116,19 @@
                 [[item]]
               </div>
             </template>
-
           </template>
         </div>
-        <div class="next-arrow" on-tap="_onNextTap">
-          <px-icon icon="px-nav:next"></px-icon>
-        </div>
+        <!-- next arrow -->
+        <template is="dom-if" if="[[_isCurrentPage(numberOfPages)]]">
+          <div class="arrow disabled">
+            <px-icon icon="px-nav:next"></px-icon>
+          </div>
+        </template>
+        <template is="dom-if" if="[[!_isCurrentPage(numberOfPages)]]">
+          <div class="arrow" on-tap="_onNextTap">
+            <px-icon icon="px-nav:next"></px-icon>
+          </div>
+        </template>
       </div>
     </div>
 
