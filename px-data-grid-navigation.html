@@ -136,7 +136,19 @@
   <script>
     {
       /**
-       * Paging UI component used by px-data-grid
+       * Navigation component that is the UI component for paging.
+       *
+       * #### Example:
+       * ```html
+       * <px-data-grid-navigation
+       *   on-navigation-change="_onNavigationChange"
+       *   selectable-page-sizes="[10, 20, 30]"
+       *   page-size="10"
+       *   total-item-count="300"
+       *   current-page="1"
+       *   number-of-pages="50">
+       * </px-data-grid-navigation>
+       * ```
        *
        * @memberof Predix
        * @extends Polymer.Element
