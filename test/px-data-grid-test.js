@@ -36,8 +36,35 @@ function runTests() {
       return grid._vaadinGrid.$.items.querySelectorAll('tr');
     }
 
+    function getVisibleRows() {
+      // the following querySelector fails on safari for some reason
+      // return grid._vaadinGrid.$.items.querySelectorAll('tr:not([hidden]');
+      const rows = getRows();
+      const visibleRows = Array.prototype.filter.call(rows, function(row) {
+        return row.getAttribute('hidden') !== ''
+            && row.getAttribute('hidden') !== true;
+      });
+      return visibleRows;
+    }
+
     function getRowCells(row) {
       return Array.prototype.slice.call(Polymer.dom(row).querySelectorAll('[part~="cell"]'));
+    }
+
+    function getCellContent(cell) {
+      const slot = cell.querySelector('slot');
+      const slotName = slot.getAttribute('name');
+      const content = grid.shadowRoot.querySelector('[slot="' + slotName + '"]');
+      const wrapper = content.querySelector('div');
+      return wrapper.innerHTML;
+    }
+
+    function getHeaderCell(grid, index) {
+      return grid._vaadinGrid.$.header.querySelectorAll('[part~="cell"]')[index];
+    }
+
+    function getHeaderCellContent(cell) {
+      return cell ? cell.querySelector('slot').assignedNodes()[0].querySelector('px-data-grid-header-cell') : null;
     }
 
     beforeEach((done) => {
@@ -174,6 +201,52 @@ function runTests() {
     });
 
 
+    describe('column dropdown menu', () => {
+      let firstNameHeaderCell;
+      let lastNameHeaderCell;
+
+      beforeEach(() => {
+        firstNameHeaderCell = getHeaderCell(grid, 0);
+        lastNameHeaderCell = getHeaderCell(grid, 1);
+      });
+
+      it('should move the first frozen column to the left side of the grid', () => {
+        getHeaderCellContent(lastNameHeaderCell)._freezeColumn();
+        expect(getHeaderCell(grid, 0)).to.equal(lastNameHeaderCell);
+        expect(getHeaderCell(grid, 1)).to.equal(firstNameHeaderCell);
+      });
+
+      it('should move the second frozen column to the left side of the grid, before the first frozen', () => {
+        getHeaderCellContent(lastNameHeaderCell)._freezeColumn();
+        getHeaderCellContent(firstNameHeaderCell)._freezeColumn();
+        expect(getHeaderCell(grid, 0)).to.equal(firstNameHeaderCell);
+        expect(getHeaderCell(grid, 1)).to.equal(lastNameHeaderCell);
+      });
+
+      // TODO: @limonte investigate why 2 tests below don't work
+      // it('should move the first unfrozen column right after last frozen', () => {
+      //   getHeaderCellContent(lastNameHeaderCell)._freezeColumn();
+      //   getHeaderCellContent(firstNameHeaderCell)._freezeColumn();
+      //   getHeaderCellContent(firstNameHeaderCell)._unfreezeColumn();
+      //   expect(getHeaderCell(grid, 0)).to.equal(lastNameHeaderCell);
+      //   expect(getHeaderCell(grid, 1)).to.equal(firstNameHeaderCell);
+      // });
+
+      // it('should not change columns order after unfrozing the only one frozen column', () => {
+      //   getHeaderCellContent(lastNameHeaderCell)._freezeColumn();
+      //   getHeaderCellContent(firstNameHeaderCell)._freezeColumn();
+      //   getHeaderCellContent(firstNameHeaderCell)._unfreezeColumn();
+      //   getHeaderCellContent(lastNameHeaderCell)._unfreezeColumn();
+      //   expect(getHeaderCell(grid, 0)).to.equal(lastNameHeaderCell);
+      //   expect(getHeaderCell(grid, 1)).to.equal(firstNameHeaderCell);
+      // });
+
+      it('should hide the column', () => {
+        getHeaderCellContent(firstNameHeaderCell)._hideColumn();
+        expect(firstNameHeaderCell.hasAttribute('hidden')).to.be.true;
+      });
+    });
+
     describe('grid-with-columns tests', () => {
       beforeEach((done) => {
         grid = fixture('grid-with-columns');
@@ -188,6 +261,82 @@ function runTests() {
       it('should set _generatedColumns to empty array', () => {
         expect(grid._generatedColumns.length).to.be.eql(0);
       });
+    });
+
+    describe('local data source', () => {
+
+      beforeEach((done) => {
+        grid = fixture('simple-grid');
+        grid.tableData = data;
+
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            done();
+          });
+        });
+      });
+
+      it('cell values in DOM should match that of the local data source', () => {
+        getRows().forEach((row, rowIndex) => {
+          getRowCells(row).forEach((cell, cellIndex) => {
+            // compare value we find in DOM and value in our data object
+            const dataRow = data[rowIndex];
+            const expectedVal = dataRow[Object.keys(dataRow)[cellIndex]];
+            const domVal = getCellContent(cell);
+            expect(domVal).to.be.eql(expectedVal);
+          });
+        });
+      });
+
+    });
+
+    describe('auto filter field tests', () => {
+
+      beforeEach((done) => {
+        grid = fixture('simple-grid');
+        grid.tableData = data;
+        grid.autoFilter = true;
+
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            done();
+          });
+        });
+      });
+
+      it('should show only 1 row after filtering', (done) => {
+        const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+        autoFilter.addEventListener('filter-change', function(event) {
+          expect(getVisibleRows().length).to.be.eql(1);
+          done();
+        });
+        autoFilter.value = 'Elizabeth';
+      });
+
+      it('should show 2 rows after filtering', (done) => {
+        const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+        autoFilter.addEventListener('filter-change', function(event) {
+          expect(getVisibleRows().length).to.be.eql(2);
+          done();
+        });
+        autoFilter.value = 'am';
+      });
+
+      it('should show all rows when filter value is empty', (done) => {
+        const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+        // set filter with value to reduce # of visible rows
+        autoFilter.value = 'am';
+        // give 500ms to let rows update
+        setTimeout(function() {
+          // add listener and clear filter value to let all rows become visible
+          autoFilter.addEventListener('filter-change', function(event) {
+            expect(getVisibleRows().length).to.be.eql(data.length);
+            done();
+          });
+          autoFilter.value = '';
+        }, autoFilter.timeout + 100);
+      });
+
     });
 
   });
