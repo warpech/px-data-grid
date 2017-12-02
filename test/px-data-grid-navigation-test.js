@@ -79,6 +79,43 @@ function runTests() {
       done();
     });
 
+    it('should display proper row ranges', (done) => {
+      console.log(getDisplayedRowRange());
+      done();
+    });
+
+    it('should display proper page numbers', (done) => {
+      console.log(getPageNumbers());
+      done();
+    });
+
+    it('should display proper selected page number', (done) => {
+      navigation.currentPage = 1;
+      expect(getSelectedPageNumber()).to.be.eql(1);
+      navigation.currentPage = 5;
+      expect(getSelectedPageNumber()).to.be.eql(5);
+      done();
+    });
+
+    it('should disable back arrow when it is first page', (done) => {
+      navigation.currentPage = 1;
+      expect(isBackArrowDisabled()).to.be.eql(true);
+      navigation.currentPage = 2;
+      expect(isBackArrowDisabled()).to.be.eql(false);
+      navigation.currentPage = navigation.numberOfPages;
+      expect(isBackArrowDisabled()).to.be.eql(false);
+      done();
+    });
+
+    it('should disable next arrow when it is first page', (done) => {
+      navigation.currentPage = 1;
+      expect(isBackArrowDisabled()).to.be.eql(false);
+      navigation.currentPage = 2;
+      expect(isBackArrowDisabled()).to.be.eql(false);
+      navigation.currentPage = navigation.numberOfPages;
+      expect(isBackArrowDisabled()).to.be.eql(true);
+      done();
+    });
 
   });
 
