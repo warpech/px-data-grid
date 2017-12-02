@@ -31,6 +31,35 @@ function runTests() {
       return options.map((el) => Number.parseInt(el.innerText));
     }
 
+    function getDisplayedRowRange() {
+      const rangeStr = navigation.shadowRoot.querySelector('.current-rows').innerText.replace(' ', '').split('-');
+      return {
+        min: rangeStr[0],
+        max: rangeStr[1]
+      };
+    }
+
+    function getArrowElements() {
+      return [...navigation.shadowRoot.querySelectorAll('.arrow')];
+    }
+
+    function isBackArrowDisabled() {
+      return getArrowElements()[0].classList.contains('disabled');
+    }
+
+    function isNextArrowDisabled() {
+      return getArrowElements()[1].classList.contains('disabled');
+    }
+
+    function getPageNumbers() {
+      const pageNumberEls = [...navigation.shadowRoot.querySelectorAll('.page-button')];
+      return pageNumberEls.map((el) => Number.parseInt(el.innerText));
+    }
+
+    function getSelectedPageNumber() {
+      return Number.parseInt(navigation.shadowRoot.querySelector('.page-button.selected').innerText);
+    }
+
     it('should display proper page size', (done) => {
       // check init page size
       expect(navigation.pageSize).to.be.eql(getSelectedPageSize());
@@ -49,6 +78,7 @@ function runTests() {
       expect(navigation.selectablePageSizes).to.be.eql(getAvailablePageSizes());
       done();
     });
+
 
   });
 
