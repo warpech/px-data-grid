@@ -298,9 +298,11 @@
          * the current page.
          */
         _getItemsRangeStr(currentPage, pageSize, totalItemCount) {
-          const min = (currentPage - 1) * pageSize;
+          // min can be no less than 1
+          let min = (currentPage - 1) * pageSize;
+          min = (min < 1) ? 1 : min;
+          // max can be no more than totalItemCount
           let max = currentPage * pageSize;
-          // dont let max be greater than total item count
           max = (totalItemCount > 0 && max > totalItemCount) ? totalItemCount : max;
           return min + ' - ' + max;
         }
