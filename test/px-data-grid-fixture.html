@@ -32,6 +32,19 @@
       </template>
     </test-fixture>
 
+    <test-fixture id="simple-navigation">
+      <template>
+        <px-data-grid-navigation
+          selectable-page-sizes="[10, 20, 30]"
+          page-size="10"
+          total-item-count="300"
+          current-page="1"
+          number-of-pages="50">
+        </px-data-grid-navigation>
+      </template>
+    </test-fixture>
+
+
     <script src="generated-columns.js"></script>
     <script src="local-data-provider.js"></script>
     <script src="selection.js"></script>
@@ -39,6 +52,7 @@
     <script src="highlighting.js"></script>
     <script src="auto-filter.js"></script>
     <script src="column-dropdown-menu.js"></script>
+    <script src="px-data-grid-navigation-test.js"></script>
     <script src="px-data-grid-navigation-test.js"></script>
 
   </body>
