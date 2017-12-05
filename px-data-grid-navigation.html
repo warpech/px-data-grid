@@ -18,6 +18,7 @@
       .right {
         display: inline-block;
         position: absolute;
+        top: 4px; /* this is to vertically align with px-dropdown's height */
         right: 0;
         padding-right: var(--px-data-grid-padding-right, 12px);
       }
@@ -52,23 +53,32 @@
         cursor: pointer;
       }
 
-      .page-selection .arrow.disabled {
+      .page-selection .arrow:disabled {
         color: var(--px-data-grid-navigation-text-color--disabled, #CCC);
         cursor: default;
+      }
+
+      .page-selection .arrow:focus {
+        outline: none;
       }
 
       .page-selection .page-list {
         display: inline-block;
       }
 
-      .page-selection .page-list .page-button {
+      .page-selection .page-button {
+        color: var(--px-data-grid-navigation-text-color, #000);
         display: inline-block;
         cursor: pointer;
-        padding: 5px 7px;
+        padding: 2px 7px;
+        background: none;
+        margin: 0;
+        border: none;
       }
 
       .page-selection .page-list .page-button.selected {
         border: solid 1px var(--px-data-grid-navigation-page-number-border-color, #CCC);
+        border-radius: 0;
         color: var(--px-data-grid-navigation-text-color--selected, #000);
       }
     </style>
@@ -95,42 +105,30 @@
       <!-- page selection list -->
       <div class="page-selection">
         <!-- back arrow -->
-        <template is="dom-if" if="[[!_isBackArrowEnabled(currentPage, numberOfPages)]]">
-          <div class="arrow disabled">
-            <px-icon icon="px-nav:back"></px-icon>
-          </div>
-        </template>
-        <template is="dom-if" if="[[_isBackArrowEnabled(currentPage, numberOfPages)]]">
-          <div class="arrow" on-tap="_onBackTap">
-            <px-icon icon="px-nav:back"></px-icon>
-          </div>
-        </template>
+        <button class="page-button arrow" on-tap="_onBackTap"
+            disabled$="[[!_isBackArrowEnabled(currentPage, numberOfPages)]]">
+          <px-icon icon="px-nav:back"></px-icon>
+        </button>
         <!-- page number list -->
         <div class="page-list">
           <template is="dom-repeat" items="[[_getPagesList(currentPage, numberOfPages)]]">
-            <template is="dom-if" if="[[_isCurrentPage(item, currentPage)]]">
-              <div class="page-button selected" on-tap="_onPageTap">
+            <template is="dom-if" if="[[_isCurrentPage(item, currentPage)]]" restamp>
+              <div class="page-button page-number selected">
                 [[item]]
               </div>
             </template>
-            <template is="dom-if" if="[[!_isCurrentPage(item, currentPage)]]">
-              <div class="page-button" on-tap="_onPageTap">
+            <template is="dom-if" if="[[!_isCurrentPage(item, currentPage)]]" restamp>
+              <div class="page-button page-number" on-tap="_onPageTap">
                 [[item]]
               </div>
             </template>
           </template>
         </div>
         <!-- next arrow -->
-        <template is="dom-if" if="[[!_isNextArrowEnabled(currentPage, numberOfPages)]]">
-          <div class="arrow disabled">
-            <px-icon icon="px-nav:next"></px-icon>
-          </div>
-        </template>
-        <template is="dom-if" if="[[_isNextArrowEnabled(currentPage, numberOfPages)]]">
-          <div class="arrow" on-tap="_onNextTap">
-            <px-icon icon="px-nav:next"></px-icon>
-          </div>
-        </template>
+        <button class="page-button arrow" on-tap="_onNextTap"
+            disabled$="[[!_isNextArrowEnabled(currentPage, numberOfPages)]]">
+          <px-icon icon="px-nav:next"></px-icon>
+        </button>
       </div>
     </div>
 
@@ -253,6 +251,9 @@
         }
 
         _onBackTap(event) {
+          if (this.currentPage == 1) {
+            return;
+          }
           this._fireChangeEvent({
             pageSize: this.pageSize,
             currentPage: this.currentPage - 1
@@ -260,6 +261,9 @@
         }
 
         _onNextTap(event) {
+          if (this.currentPage == this.numberOfPages) {
+            return;
+          }
           this._fireChangeEvent({
             pageSize: this.pageSize,
             currentPage: this.currentPage + 1
