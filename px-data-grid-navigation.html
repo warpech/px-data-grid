@@ -299,7 +299,7 @@
          */
         _getItemsRangeStr(currentPage, pageSize, totalItemCount) {
           // min can be no less than 1
-          let min = (currentPage - 1) * pageSize;
+          let min = (currentPage - 1) * pageSize + 1;
           min = (min < 1) ? 1 : min;
           // max can be no more than totalItemCount
           let max = currentPage * pageSize;
