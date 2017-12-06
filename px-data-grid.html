@@ -629,7 +629,17 @@
 
         _localDataProvider(params, callback) {
           let items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
+          if (this.pagination) {
+            // tell the data provider to give us everything and we will narrow it down manually
+            params.page = 0;
+            params.pageSize = items.length;
+          }
           items = this._localDataResolver(params, items);
+          if (this.pagination) {
+            // grab only a single page worth of items
+            const start = (this.page - 1) * this.pageSize;
+            items = items.splice(start, this.pageSize);
+          }
           callback(items, items.length);
         }
 
@@ -844,6 +854,7 @@
           this.pageSize = event.detail.pageSize;
           this.page = event.detail.currentPage;
           this._verifyPageNumberValid();
+          this._tableDataChanged(this.tableData);
         }
 
         /**
