@@ -378,26 +378,46 @@
         _tableDataChanged(tableData) {
           console.log('_tableDataChanged');
           if (tableData) {
-            this._setDataProvider(this._localDataProvider);
+            this._currentDataProvider = this._wrapDataProvider(this._localDataProvider);
             this._pxDataGrid._populateTableColumns(tableData);
           }
         }
 
+        _wrapDataProvider(provider) {
+          console.log("_wrapDataProvider");
+
+          this.p = provider;
+
+          const wrappedProvider = function(params, callback) {
+            // override page and page size params with ours
+            params.page = this.page - 1;
+            params.pageSize = this.pageSize;
+            // wrap the callback function so we can inject our custom size to vaadin grid
+            this.p(params, function(items, size) {
+              size = (items.length > params.pageSize) ? params.pageSize : items.length;
+              callback(items, size);
+            });
+
+          }.bind(this);
+
+          return wrappedProvider;
+        }
+
         _localDataResolver(params, items) {
           console.log('_localDataResolver');
-          if (params.filters && params.filters.length && this._vaadinGrid._checkPaths(params.filters, 'filtering', items)) {
-            items = this._filter(items, params.filters);
+          if (params.filters && params.filters.length && this._pxDataGrid._vaadinGrid._checkPaths(params.filters, 'filtering', items)) {
+            items = this._pxDataGrid._filter(items, params.filters);
           }
 
           this.size = items.length;
 
-          if (params.sortOrders && params.sortOrders.length && this._vaadinGrid._checkPaths(this._sorters, 'sorting', items)) {
+          if (params.sortOrders && params.sortOrders.length && this._pxDataGrid._vaadinGrid._checkPaths(this.pxDataGrid_sorters, 'sorting', items)) {
             const multiSort = (a, b) => {
               return params.sortOrders.map(sort => {
                 if (sort.direction === 'asc') {
-                  return this._vaadinGrid._compare(Polymer.Base.get(sort.path, a), Polymer.Base.get(sort.path, b));
+                  return this._pxDataGrid._vaadinGrid._compare(Polymer.Base.get(sort.path, a), Polymer.Base.get(sort.path, b));
                 } else if (sort.direction === 'desc') {
-                  return this._vaadinGrid._compare(Polymer.Base.get(sort.path, b), Polymer.Base.get(sort.path, a));
+                  return this._pxDataGrid._vaadinGrid._compare(Polymer.Base.get(sort.path, b), Polymer.Base.get(sort.path, a));
                 }
                 return 0;
               }).reduce((p, n) => {
@@ -419,24 +439,6 @@
           let items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
           items = this._localDataResolver(params, items);
           callback(items, items.length);
-        }
-
-        _setDataProvider(provider) {
-          console.log("_setDataProvider");
-
-          this.p = provider;
-
-          this._currentDataProvider = function(params, callback) {
-            // override page and page size params with ours
-            params.page = this.page - 1;
-            params.pageSize = this.pageSize;
-            // wrap the callback function so we can inject our custom size to vaadin grid
-            this.p(params, function(items, size) {
-              size = (items.length > params.pageSize) ? params.pageSize : items.length;
-              callback(items, size);
-            });
-
-          }.bind(this);
         }
 
         /**
