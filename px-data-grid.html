@@ -121,20 +121,6 @@
 
     </vaadin-grid>
 
-    <!-- pagination component -->
-    <template is="dom-if" if="[[pagination]]">
-      <div class="action-bar">
-        <px-data-grid-navigation
-          total-item-count="[[size]]"
-          on-navigation-change="_onNavigationChange"
-          selectable-page-sizes="[10, 20, 30]"
-          page-size="[[pageSize]]"
-          current-page="[[page]]"
-          number-of-pages="[[_calcNumPages(size, pageSize)]]">
-        </px-data-grid-navigation>
-      </div>
-    </template>
-
     <px-spinner size="40" hidden$="[[_spinnerHidden]]"></px-spinner>
   </template>
   <script>
@@ -202,14 +188,6 @@
             pageSize: {
               type: Number,
               value: 10
-            },
-
-            /**
-             * Current page number of displayed items. Page 1 should be the minimum value.
-             */
-            page: {
-              type: Number,
-              value: 1
             },
 
             /**
@@ -295,14 +273,6 @@
             columns: {
               type: Array,
               value: []
-            },
-
-            /**
-             * Define if table uses paging to display data
-             */
-            pagination: {
-              type: Boolean,
-              value: false
             },
 
             /**
