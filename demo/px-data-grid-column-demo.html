@@ -47,9 +47,11 @@
           action-menu="{{props.actionMenu.value}}"
           language="{{props.language.value}}"
           table-actions="{{props.tableActions.value}}"
+          action-menu="{{props.actionMenu.value}}"
           columns="{{props.columns.value}}"
           highlight="{{props.highlight.value}}"
-          auto-filter="{{props.autoFilter.value}}">
+          auto-filter="{{props.autoFilter.value}}"
+          on-table-action="tableActionListener">
         </px-data-grid>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -573,9 +575,7 @@
         defaultValue: [
           {
             name: 'Export CSV',
-            action: function() {
-              window.alert('TODO');
-            }
+            id: 'CSV'
           }
         ],
         inputType: 'code:JSON'
@@ -593,6 +593,10 @@
         });
         grid.updateColumns();
       }
+    },
+
+    tableActionListener: function(evt) {
+      window.alert('Table Action ' + evt.detail.id);
     },
 
     observers: [
