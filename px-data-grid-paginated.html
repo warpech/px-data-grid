@@ -411,7 +411,7 @@
 
           this.size = items.length;
 
-          if (params.sortOrders && params.sortOrders.length && this._pxDataGrid._vaadinGrid._checkPaths(this.pxDataGrid_sorters, 'sorting', items)) {
+          if (params.sortOrders && params.sortOrders.length && this._pxDataGrid._vaadinGrid._checkPaths(this._pxDataGrid._sorters, 'sorting', items)) {
             const multiSort = (a, b) => {
               return params.sortOrders.map(sort => {
                 if (sort.direction === 'asc') {
