@@ -383,13 +383,6 @@
               xhr.onload = () => {
                 const size = parseInt(xhr.getAllResponseHeaders().match(/x-total-count: (\d+)/)[1]);
                 callback(JSON.parse(xhr.responseText), size);
-
-                // TODO: @limonte this should be moved to internal functionality
-                // document.querySelector('local-element-demo')
-                //   .shadowRoot.querySelector('px-demo-collection')
-                //   .shadowRoot.querySelector('px-data-grid-remote-data-provider-demo')
-                //   .shadowRoot.querySelector('px-data-grid')._populateTableColumns(JSON.parse(xhr.responseText));
-                // this._pxDataGrid._populateTableColumns(JSON.parse(xhr.responseText));
               };
               let url = 'https://px-data-grid-dummy-backend.herokuapp.com/contacts?' +
                 '_page=' + encodeURIComponent(params.page + 1) + '&' +
@@ -431,29 +424,40 @@
           this._currentDataProvider = this._wrapDataProvider(provider);
         }
 
+        /**
+         * Wrap the supplied data provider in order to manipulate the request and data
+         * to work with our pagination state.
+         */
         _wrapDataProvider(provider) {
           console.log("_wrapDataProvider");
 
+          // TODO: fix this... doesn't work without assigning to this, not sure why
           this.p = provider;
 
           const wrappedProvider = function(params, callback) {
             // override page and page size params with ours
             params.page = this.page - 1;
             params.pageSize = this.pageSize;
-            // wrap the callback function so we can inject our custom size to vaadin grid
+            // wrap the callback
             this.p(params, function(items, size) {
-              // keep our own ref to the total number of items
+              // keep a reference to the total number of items (needed for pagination ui)
               this.size = size;
-              // but pass the vaadin grid the page size (or items size if less) so that
-              // vaadin grid only displays this many items at a time
+              // pass the vaadin grid the page size (or items size if less) so that
+              // vaadin grid only displays this many items at a time (aka a single page of rows)
               const numDisplayedRows = (items.length > params.pageSize) ? params.pageSize : items.length;
               callback(items, numDisplayedRows);
               this._pxDataGrid._populateTableColumns(items);
             }.bind(this));
-
           }.bind(this);
 
           return wrappedProvider;
+        }
+
+        _localDataProvider(params, callback) {
+          console.log("_localDataProvider");
+          const items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
+          const response = this._localDataResolver(params, items);
+          callback(response.items, response.total);
         }
 
         _localDataResolver(params, items) {
@@ -487,13 +491,6 @@
             items: items.slice(start, end),
             total: total
           };
-        }
-
-        _localDataProvider(params, callback) {
-          console.log("_localDataProvider");
-          const items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
-          const response = this._localDataResolver(params, items);
-          callback(response.items, response.total);
         }
 
         /**
