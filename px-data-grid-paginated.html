@@ -373,14 +373,62 @@
         ready() {
           super.ready();
           this._pxDataGrid = this.shadowRoot.querySelector('px-data-grid');
+          window.grid = this;
+        }
+
+        useRemoteDataProvider(isUse) {
+          if (isUse) {
+            this.remoteDataProvider = (params, callback) => {
+              const xhr = new XMLHttpRequest();
+              xhr.onload = () => {
+                const size = parseInt(xhr.getAllResponseHeaders().match(/x-total-count: (\d+)/)[1]);
+                callback(JSON.parse(xhr.responseText), size);
+
+                // TODO: @limonte this should be moved to internal functionality
+                // document.querySelector('local-element-demo')
+                //   .shadowRoot.querySelector('px-demo-collection')
+                //   .shadowRoot.querySelector('px-data-grid-remote-data-provider-demo')
+                //   .shadowRoot.querySelector('px-data-grid')._populateTableColumns(JSON.parse(xhr.responseText));
+                // this._pxDataGrid._populateTableColumns(JSON.parse(xhr.responseText));
+              };
+              let url = 'https://px-data-grid-dummy-backend.herokuapp.com/contacts?' +
+                '_page=' + encodeURIComponent(params.page + 1) + '&' +
+                '_limit=' + encodeURIComponent(params.pageSize);
+
+              // Add free text filtering
+              if (params.filters.length == 1 && params.filters[0].path == undefined) {
+                url += '&q=' + encodeURIComponent(params.filters[0].value);
+              }
+
+              // Add sorting to URL if defined
+              if (params.sortOrders.length) {
+                const values = params.sortOrders.map(function(sort) {
+                  return encodeURIComponent(sort.path);
+                });
+                const orders = params.sortOrders.map(function(sort) {
+                  return encodeURIComponent(sort.direction);
+                });
+                url += '&_sort=' + values.join(',') + '&_order=' + orders.join(',');
+              }
+
+              xhr.open('GET', url, true);
+              xhr.send();
+            };
+          }
         }
 
         _tableDataChanged(tableData) {
           console.log('_tableDataChanged');
           if (tableData) {
+            this._hasLocalDataProvider = true;
             this._currentDataProvider = this._wrapDataProvider(this._localDataProvider);
-            this._pxDataGrid._populateTableColumns(tableData);
           }
+        }
+
+        _remoteDataProviderChanged(provider) {
+          console.log('_remoteDataProviderChanged');
+          this._hasLocalDataProvider = false;
+          this._currentDataProvider = this._wrapDataProvider(provider);
         }
 
         _wrapDataProvider(provider) {
@@ -394,9 +442,14 @@
             params.pageSize = this.pageSize;
             // wrap the callback function so we can inject our custom size to vaadin grid
             this.p(params, function(items, size) {
-              size = (items.length > params.pageSize) ? params.pageSize : items.length;
-              callback(items, size);
-            });
+              // keep our own ref to the total number of items
+              this.size = size;
+              // but pass the vaadin grid the page size (or items size if less) so that
+              // vaadin grid only displays this many items at a time
+              const numDisplayedRows = (items.length > params.pageSize) ? params.pageSize : items.length;
+              callback(items, numDisplayedRows);
+              this._pxDataGrid._populateTableColumns(items);
+            }.bind(this));
 
           }.bind(this);
 
@@ -408,8 +461,6 @@
           if (params.filters && params.filters.length && this._pxDataGrid._vaadinGrid._checkPaths(params.filters, 'filtering', items)) {
             items = this._pxDataGrid._filter(items, params.filters);
           }
-
-          this.size = items.length;
 
           if (params.sortOrders && params.sortOrders.length && this._pxDataGrid._vaadinGrid._checkPaths(this._pxDataGrid._sorters, 'sorting', items)) {
             const multiSort = (a, b) => {
@@ -428,17 +479,21 @@
             items = items.sort(multiSort);
           }
 
+          const total = items.length;
           const start = params.page * params.pageSize;
           const end = start + params.pageSize;
 
-          return items.slice(start, end);
+          return {
+            items: items.slice(start, end),
+            total: total
+          };
         }
 
         _localDataProvider(params, callback) {
           console.log("_localDataProvider");
-          let items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
-          items = this._localDataResolver(params, items);
-          callback(items, items.length);
+          const items = (Array.isArray(this.tableData) ? this.tableData : []).slice(0);
+          const response = this._localDataResolver(params, items);
+          callback(response.items, response.total);
         }
 
         /**
@@ -457,11 +512,6 @@
           }
         }
 
-        _remoteDataProviderChanged(provider) {
-          this._hasLocalDataProvider = false;
-          this._currentDataProvider = provider;
-        }
-
         /**
          * Listener for px-data-grid-navigation component
          */
@@ -469,7 +519,12 @@
           this.pageSize = event.detail.pageSize;
           this.page = event.detail.currentPage;
           this._verifyPageNumberValid();
-          this._tableDataChanged(this.tableData);
+          if (this._hasLocalDataProvider) {
+            this._tableDataChanged(this.tableData);
+          } else if (this.remoteDataProvider) {
+            this._remoteDataProviderChanged(this.remoteDataProvider);
+          }
+
         }
 
         /**
