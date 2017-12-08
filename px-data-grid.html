@@ -111,6 +111,7 @@
           language="[[language]]"
           resources="[[resources]]"
           type="[[column.type]]"
+          frozen="[[column.frozen]]"
           mapped-object="[[column]]"
           width="[[_getColumnWidth(column)]]"
           flex-grow="[[_getColumnFlexGrow(column)]]"
@@ -466,6 +467,17 @@
           };
         }
 
+        updateColumns() {
+          const probs = ['hidden', 'name', 'frozen', 'width', 'flexGrow', 'path'];
+          for (let i = 0; i < this.columns.length; ++i) {
+            const prefix = 'columns.' + i + '.';
+            probs.forEach(prob => {
+              const path = prefix + prob;
+              this.notifyPath(path);
+            });
+          }
+        }
+
         ready() {
           super.ready();
           this._vaadinGrid = this.shadowRoot.querySelector('vaadin-grid');
@@ -491,6 +503,10 @@
           if (dataColumns.length) {
             this._vaadinGrid.insertBefore(event.detail.column, dataColumns[0]);
           }
+        }
+
+        _columnsChanged(columns) {
+          console.log('columns changed');
         }
 
         /**

@@ -131,6 +131,7 @@
                 {
                   first: 'Elizabeth',
                   last: 'Wong',
+                  full: 'Elizabeth Wong',
                   email: 'sika@iknulber.cl',
                   age: 32
                 },
@@ -416,6 +417,7 @@
         }
       },
     },
+
     /**
      * A reference for `this.props`. Read the documentation there.
      */
@@ -426,6 +428,7 @@
           {
             first: 'Elizabeth',
             last: 'Wong',
+            full: 'Elizabeth Wong',
             email: 'sika@iknulber.cl',
             age: 23
           },
@@ -466,13 +469,11 @@
             type: 'number',
             width: '50px',
             flexGrow: 0,
-            value: (item) => {
-              return item.age;
-            }
+            hidden: false
           },
           {
             name: 'Full Name',
-            path: '',
+            path: 'full',
             hidden: true
           },
           {
@@ -556,6 +557,13 @@
             condition: (cellContent, column, item) => {
               return cellContent == 'Elizabeth';
             }
+          },
+          {
+            type: 'cell',
+            color: '#88F',
+            condition: (cellContent, column, item) => {
+              return cellContent == 'Dennis';
+            }
           }
         ]
       },
@@ -572,6 +580,23 @@
         ],
         inputType: 'code:JSON'
       }
-    }
+    },
+
+    _fullNameChanged() {
+      const grid = this.shadowRoot.querySelector('px-data-grid');
+      if (grid && grid.columns) {
+        const hidden = this.props.hideFullName.value;
+        const frozen = this.props.freezeFullName.value;
+        grid.columns.filter(c => c.name == 'Full Name').forEach(c => {
+          c.hidden = hidden;
+          c.frozen = frozen;
+        });
+        grid.updateColumns();
+      }
+    },
+
+    observers: [
+      '_fullNameChanged(props.hideFullName.value, props.freezeFullName.value)'
+    ]
   });
 </script>
